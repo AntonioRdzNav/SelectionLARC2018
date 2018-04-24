@@ -6,6 +6,7 @@ void readPosition(Adafruit_BNO055 &bno, sensors_event_t &event, MPU6050 &mpu, ch
 }
 
 void readBNO(Adafruit_BNO055 &bno, sensors_event_t &event){
+  delay(1);
   bno.getEvent(&event);
   rawInput=event.orientation.x;
   Input = rawInput;

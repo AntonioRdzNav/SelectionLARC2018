@@ -9,21 +9,21 @@ void ultraKalmanFilter(UltraKalman &ultra){
 	ultra.Zp = ultra.Xp;
 	ultra.Xe = ultra.G*(ultra.distance-ultra.Zp)+ultra.Xp;	//Estimates new filtered input
 }
-void ultra_RawKalman(UltraKalman &ultra, NewPing ping){
-  rawUltrasonic(ultra, ping);
+void ultra_RawKalman(UltraKalman &ultra, NewPing ultraPing){
+  rawUltrasonic(ultra, ultraPing);
   Serial.print(ultra.distance);
   Serial.print(",");
   ultraKalmanFilter(ultra);
   Serial.println(ultra.Xe);
 }
 void filtrateDistances(UltraKalman &ultraFront, UltraKalman &ultraRight, UltraKalman &ultraLeft, UltraKalman &ultraBack){
-  calculateRawDistances(ultraFront, ultraRight, ultraLeft, ultraBack);
+  calculateRawDistances(ultraFront, ultraRight, ultraLeft);
   ultraKalmanFilter(ultraFront);
   ultraKalmanFilter(ultraRight);
   ultraKalmanFilter(ultraLeft);
   ultraKalmanFilter(ultraBack);
-//  if(ultraFront.Xe <= 15 && ultraFront.Xe!=0) ultraNegativoSide = true;
-//  else ultraNegativoSide = false;
+  if(ultraFront.Xe <= 12 && ultraFront.Xe!=0) ultraNegativoSide = true;
+  else ultraNegativoSide = false;
   if(ultraBack.Xe <= 25 && ultraBack.Xe!=0) ultraBack.side = true;
   else ultraBack.side = false;
   if(ultraFront.Xe <= 25 && ultraFront.Xe!=0) ultraFront.side = true;
@@ -32,6 +32,37 @@ void filtrateDistances(UltraKalman &ultraFront, UltraKalman &ultraRight, UltraKa
   else ultraRight.side = false;
   if(ultraLeft.Xe <= 25 && ultraLeft.Xe != 0) ultraLeft.side = true;
   else ultraLeft.side = false;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////SHARP///////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////
+void sharpKalmanFilter(SharpKalman &sharp){
+  sharp.Pc = sharp.P + sharp.varProcess;
+  sharp.G = sharp.Pc/(sharp.Pc + sharp.varSensor);  //Kalman gain
+  sharp.P = (1-sharp.G)*sharp.Pc;
+  sharp.Xp = sharp.Xe;
+  sharp.Zp = sharp.Xp;
+  sharp.Xe = sharp.G*(sharp.distance-sharp.Zp)+sharp.Xp;  //Estimates new filtered input
+}
+void sharp_RawKalman(SharpKalman &sharp){
+  calculateRawDistancesSharp();
+  Serial.print(sharp.rawDistance);
+  Serial.print(",");
+  sharpKalmanFilter(sharp);
+  Serial.println(sharp.Xe);
+}
+void filtrateDistancesSharp(){
+  calculateRawDistancesSharp();
+  sharpKalmanFilter(sharpFront);
+  sharpKalmanFilter(sharpRight);
+  sharpKalmanFilter(sharpLeft);
+  if(sharpFront.Xe <= 25 && sharpFront.Xe!=0) sharpFront.side = true;
+  else sharpFront.side = false;
+  if(sharpRight.Xe <= 25 && sharpRight.Xe != 0) sharpRight.side = true;
+  else sharpRight.side = false;
+  if(sharpLeft.Xe <= 25 && sharpLeft.Xe != 0) sharpLeft.side = true;
+  else sharpLeft.side = false;    
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////

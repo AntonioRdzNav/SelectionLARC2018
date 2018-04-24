@@ -1,11 +1,5 @@
-void filterUltrasonic(){
-  for(int i=0; i<15; i++){
-    filtrateDistances(ultraFront, ultraRight, ultraLeft, ultraBack);
-  }
-}
-
-void rawUltrasonic(UltraKalman &ultra, NewPing ping){
-  double ultraTemp = ping.ping_cm();
+void rawUltrasonic(UltraKalman &ultra, NewPing ultraPing){
+  double ultraTemp = ultraPing.ping_cm();
   if(ultraTemp<200 && ultraTemp!=0){
     if(ultraTemp > 95)
       ultra.distance = 95;
@@ -13,11 +7,29 @@ void rawUltrasonic(UltraKalman &ultra, NewPing ping){
       ultra.distance = ultraTemp;
   }
 }
+double filterRawSharp(double rawSharpMeasure){
+  if(rawSharpMeasure<200 && rawSharpMeasure!=0){
+    if(rawSharpMeasure > 95)
+      return 95;
+    else
+      return rawSharpMeasure;
+  }  
+}
 
-
-void calculateRawDistances(UltraKalman &ultraFront, UltraKalman &ultraRight, UltraKalman &ultraLeft, UltraKalman &ultraBack){
+void calculateRawDistances(UltraKalman &ultraFront, UltraKalman &ultraRight, UltraKalman &ultraLeft){
   rawUltrasonic(ultraRight, pingRight);
   rawUltrasonic(ultraLeft, pingLeft);
   rawUltrasonic(ultraFront, pingFront);
-  rawUltrasonic(ultraBack, pingBack);
+}
+// There are different sharps:
+//  -ShortDistance Sharp = 2076 / (sensorvalue-11)
+//  -MediumDistance Sharp = 4800 / (sensorvalue-20)
+//  -LongDistance Sharp = 9462 / (sensorvalue-16.92)
+void calculateRawDistancesSharp(){
+  sharpRight.rawDistance = analogRead(sharpRightPin);
+  sharpRight.distance = filterRawSharp(sharpRight.rawDistance);
+  sharpFront.rawDistance = analogRead(sharpLeftPin);
+  sharpFront.distance = filterRawSharp(sharpFront.rawDistance);
+  sharpLeft.rawDistance = analogRead(sharpFrontPin);
+  sharpLeft.distance = filterRawSharp(sharpLeft.rawDistance);
 }

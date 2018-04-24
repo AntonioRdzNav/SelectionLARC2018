@@ -1,24 +1,31 @@
+/////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////SELECCION LARC////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////
+
 #include <StackArray.h>
 #include <math.h>
-
 ///////////////////////////////////////////////COLOR///////////////////////////////////////////////////
-//#define S0 41
-//#define S1 42
-//#define S2 37
-//#define S3 40
-//#define sensorOut 36
-#define sensorOut 32
-#define S2 30
-#define S3 28
-#define S1 38
-#define S0 36
-#define OE 40
-bool colorRedDetected=false, colorGreenDetected=false, colorBlackDetected=false, colorBlueDetected=false;
+// AT
+// #define sensorOut 32
+// #define S2 30
+// #define S3 28
+// #define S1 38
+// #define S0 36
+// #define OE 40
+// Seleccion LARC
+#define sensorOut 13
+#define S2 12
+#define S3 11
+#define S1 10
+#define S0 8
+
+bool colorRedDetected=false, colorGreenDetected=false, colorBlackDetected=false;
 double r = 0, g = 0, b = 0;
-const int num_col = 4;
-const int range = 15;
-int color_position;           //  0        1       2       3    
-String color_names[num_col] = {"rojo", "azul", "verde", "negro"};
+const int num_col = 5;
+int range = 20;
+int color_position;           //  0        1       2       3        4
+String color_names[num_col] = {"rojo", "azul", "verde", "negro", "blanco"};
+bool switchColor=false;
 struct color{
   String nombre;
   double red;
@@ -33,54 +40,42 @@ LiquidCrystal_I2C lcd(0x27, 16, 2);
 int lastMillis, actualMillis;
 
 //////////////////////////////////////////////LEDs////////////////////////////////////////////////
-//UNO
-//#define ledRight 13
-//#define ledLeft 12
-//gregMovil
-//#define ledRed 43
-//#define ledGreen 28
-//#define ledBlue 29
 //AT
-#define ledRed 53
-#define ledGreen 47
-#define ledBlue 45
+#define ledRed 7
+#define ledGreen 4
+#define ledBlue 2
 
 /////////////////////////////////////////////MOTORS///////////////////////////////////////////////
-//gregMovil
-//#define motorL1 3
-//#define motorL2 2
-//#define motorR1 5 
-//#define motorR2 4 //Forward
-//AT
-//#define M2Back 3 //Back
-//#define M2Front 2  //Front
-//#define M2PWM 4  //PWM
-//#define M1Back 5 //Back
-//#define M1Front 6  //Front
-//#define M1PWM 7  //PWM
-//#define motorL_PWM 8  //PWM
-//#define motorD_PWM 9  //PWM
-//#define motorL1 46 //Back
-//#define motorL2 48  //Front
-//#define motorR1 50 //Back
-//#define motorR2 52  //Front
-#define motorL_PWM 7  //PWM
-#define motorD_PWM 4  //PWM
+// AT
+// #define motorL1 5  //Back
+// #define motorL2 3  //Front
+// #define motorR1 9   //Back
+// #define motorR2 6  //Front
+// #define motorL_PWM 7  //PWM
+// #define motorD_PWM 4  //PWM
+// Seleccion LARC
 #define motorL1 5 //Back
-#define motorL2 6  //Front
-#define motorR1 2 //Back
-#define motorR2 3  //Front
+#define motorL2 3  //Front
+#define motorR1 9 //Back
+#define motorR2 6  //Front
 
-double velGenDer = 65;
-double velGenIzq = 65;
-double velGenDerBack = 65;
-double velGenIzqBack = 65;
-double maxTurnVel=107;
+
+double velGenDer = 110;
+double velGenIzq = 110;
+double velGenDerBack = 110;
+double velGenIzqBack = 110;
+//AT
+double timeStepBack=1100, timeStep=920;
+//PISTA LAB
+//double timeStepBack=1250, timeStep=1080;
+double maxTurnVel=190;
+double maxFrontVel=255;
+bool spinRight, spinLeft;
 
 /////////////////////////////////////////////LIMIT SWITCHES///////////////////////////////////////////////
-#define limitSwitchIzq A9
-#define limitSwitchDer A3
-
+//#define limitSwitchIzq A9
+//#define limitSwitchDer A3
+int turnsCounter = 0;
 /////////////////////////////////////////////ENCODERS///////////////////////////////////////////////
 //AT
 //#define encoderM1Front 13
@@ -94,29 +89,16 @@ double maxTurnVel=107;
 
 ///////////////////////////////////////////ULTRASONICS////////////////////////////////////////////
 #include <NewPing.h>
-//UNO
-//#define echoRight 4
-//#define trigRight 5
-//#define echoLeft 7
-//#define trigLeft 8
-//#define echoFront 3
-//#define trigFront 2  
-//GregMovil
-//#define echoRight 25
-//#define trigRight 24
-//#define echoLeft 27
-//#define trigLeft 26
-//#define echoFront 22
-//#define trigFront 23  
 //AT
-#define echoRight 25
-#define trigRight 23
-#define echoLeft 41
-#define trigLeft 39
-#define echoFront 31
-#define trigFront 29
-#define echoBack 10
-#define trigBack 11
+ #define echoRight 25
+ #define trigRight 23
+ #define echoLeft 41
+ #define trigLeft 39
+ #define echoFront 31
+ #define trigFront 29
+ #define echoBack 10
+ #define trigBack 11
+
 bool special, ultraNegativoSide;
 double stepDistance = 27, backStepDistance = 35;
 bool setFakeSetpoint;
@@ -126,7 +108,11 @@ NewPing pingFront(trigFront, echoFront, MAX_DISTANCE);
 NewPing pingRight(trigRight, echoRight, MAX_DISTANCE);
 NewPing pingLeft(trigLeft, echoLeft, MAX_DISTANCE);
 NewPing pingBack(trigBack, echoBack, MAX_DISTANCE);
-bool bits[4] = {false, false, false, false}; //Izq, Adelante, Der, Atras
+
+/////////////////////////////////////////////SHARP////////////////////////////////////////////////
+#define sharpLeftPin A1
+#define sharpRightPin A0
+#define sharpFrontPin A2
 
 ///////////////////////////////////////////BNO///////////////////////////////////////////////////
 #include <Wire.h>
@@ -144,27 +130,28 @@ Vector normGyro;
 ///////////////////////////////////////////PID///////////////////////////////////////////////////
 #include <utility/imumaths.h>
 #include <PID_v1.h>
-double leftAlignKp=4.1, leftAlignKi=0, leftAlignKd=0;
-double leftTurnKp=1.9, leftTurnKi=0, leftTurnKd=0;
-double leftConsKp=5.1, leftConsKi=0, leftConsKd=0;
+double leftAlignKp=37, leftAlignKi=0, leftAlignKd=0;
+double leftTurnKp=15, leftTurnKi=0, leftTurnKd=0;
+double leftConsKp=38, leftConsKi=0, leftConsKd=0;
 double leftGenKp=leftConsKp, leftGenKi=leftConsKi, leftGenKd=leftConsKd;
 double leftError=0;
-double rightAlignKp=4.1, rightAlignKi=0, rightAlignKd=0;
-double rightTurnKp= 1.9, rightTurnKi=0, rightTurnKd=0;
-double rightConsKp=5, rightConsKi=0, rightConsKd=0;
+double rightAlignKp=37, rightAlignKi=0, rightAlignKd=0;
+double rightTurnKp= 15, rightTurnKi=0, rightTurnKd=0;
+double rightConsKp=38, rightConsKi=0, rightConsKd=0;
 double rightGenKp=rightConsKp, rightGenKi=rightConsKi, rightGenKd=rightConsKd;
 double rightError=0;
 double Offset, Setpoint, fakeSetpoint, leftOutput, rightOutput, Input, rawInput, fakeInput, lastSetpoint;
 double outputDifference = 5;
+double offsetAngle = 0.2;
 PID leftPID(&fakeInput, &leftOutput, &fakeSetpoint, leftGenKp, leftGenKi, leftGenKd, DIRECT); // (Values>0)
 PID rightPID(&fakeInput, &rightOutput, &fakeSetpoint, rightGenKp, rightGenKi, rightGenKd, REVERSE); // (Values<0)
-bool LARC = false;
+bool LARC = true;
 
 //////////////////////////////////////////////ALGORITHM/////////////////////////////////////////////////
-const int mazeSize=9;
-int actualRow=0, actualCol=0;
-char comeFrom='S';
-String maze[mazeSize][mazeSize];
+// const int mazeSize=9;
+// int actualRow=0, actualCol=0;
+// char comeFrom='S';
+// String maze[mazeSize][mazeSize];
 
 ///////////////////////////////////////////ULTRA KALMAN FILTER///////////////////////////////////////////
 struct UltraKalman{
@@ -198,6 +185,37 @@ UltraKalman ultraLeft;
 UltraKalman ultraFront;
 UltraKalman ultraBack;
 
+///////////////////////////////////////////SHARP KALMAN FILTER///////////////////////////////////////////
+struct SharpKalman{
+  SharpKalman(){
+    varSensor = 3e-6; //Variance of sensor. The LESS, the MORE it looks like the raw input.
+    varProcess = 1e-7; 
+    P = 1.0;
+    Pc = 0.0;
+    G = 0.0;
+    Xp = 0.0;
+    Zp = 0.0;
+    Xe = 0.0;
+    rawDistance = 0.0;
+    distance = 0.0;
+    side = false;
+  }
+  float varSensor; //Variance of sensor. The LESS, the MORE it looks like the raw input
+  float varProcess; // The greater the variance, faster the sensor response
+  float P;
+  float Pc;
+  float G;
+  float Xp;
+  float Zp;
+  float Xe;
+  double rawDistance;
+  double distance;
+  bool side;
+};
+SharpKalman sharpRight;
+SharpKalman sharpLeft;
+SharpKalman sharpFront;
+
 ///////////////////////////////////////////xBNO KALMAN FILTER///////////////////////////////////////////
 float xBNOVarSensor = 10e-6; //Variance of sensor. The LESS, the MORE it looks like the raw input
 float xBNOVarProcess = 1e-7; // The greater the variance, faster the sensor response
@@ -225,19 +243,10 @@ void setup() {
   pinMode(motorR1,OUTPUT);
   pinMode(motorR2,OUTPUT);
   pinMode(motorL1,OUTPUT);
-  pinMode(motorL2,OUTPUT);
-  pinMode(motorL_PWM,OUTPUT);
-  pinMode(motorD_PWM,OUTPUT);
+  pinMode(motorL2,OUTPUT);  
   pinMode(ledGreen,OUTPUT);
   pinMode(ledRed,OUTPUT);
   pinMode(ledBlue,OUTPUT);    
-  pinMode(trigRight, OUTPUT);
-  pinMode(echoLeft, INPUT);
-  pinMode(trigLeft, OUTPUT);
-  pinMode(echoFront, INPUT);
-  pinMode(trigFront, OUTPUT);
-  pinMode(echoBack, INPUT);
-  pinMode(trigBack, OUTPUT);
   pinMode(S0, OUTPUT);
   pinMode(S1, OUTPUT);
   pinMode(S2, OUTPUT);
@@ -246,7 +255,7 @@ void setup() {
 //  pinMode(limitSwitchDer,INPUT);
 //  pinMode(limitSwitchIzq,INPUT);  
   digitalWrite(S0,HIGH);
-  digitalWrite(S1,LOW);    
+  digitalWrite(S1,LOW);   
 //// MPU
 //  Serial.println("Initializing MPU6050...");
 //  while(!mpu.begin(MPU6050_SCALE_2000DPS, MPU6050_RANGE_2G))
@@ -257,6 +266,12 @@ void setup() {
 //  mpu.calibrateGyro();
 //  mpu.setThreshold(3);
 //// BNO
+//////////////////////////////////////////////////////////////////////////////////////////////////
+  calibrarColores(1);
+//  hardCodedCalibration();
+//  turnOffLeds();
+//  delay(5000);
+//////////////////////////////////////////////////////////////////////////////////////////////////
   if(!bno.begin())  {
     Serial.print("Ooops, no BNO055 detected ... Check your wiring or L2C ADDR!");
     while(1);
@@ -265,7 +280,6 @@ void setup() {
     Serial.println("BNO STARTED");
 //  setCal();
 //  delay(3000);
-//  setFakeSetpoint();
   bno.setExtCrystalUse(true);
 //// PID
   Setpoint=0; //  Set reference point to 0
@@ -282,22 +296,20 @@ void setup() {
 }
 
 void loop(){
-//   forwardPID(bno, event, mpu);
 //   filtrateDistances(ultraFront, ultraRight, ultraLeft, ultraBack);
 //   if(ultraNegativoSide){
-//       spinPID(bno, event, mpu, 90, false);
+//       spinPID(bno, event, mpu, -90, false);
+//       stop(false);
 //       filtrateDistances(ultraFront, ultraRight, ultraLeft, ultraBack);      
 //   }
+//  currentColor();
 
-  calibrarColores(0);
-  while(1)
-    rightPriotity(ultraFront, ultraRight, ultraLeft); 
+//  rightPriotity(ultraFront, ultraRight, ultraLeft); 
+  firstChallenge();
+//  currentColor();
 
-//  mazeAlgorithm();
-//  writeStringLCD("HOLA", 0, 1);
-  
-//  filtrateDistances(ultraFront, ultraRight, ultraLeft);
-//  Serial.println(getBitWithValues(bits));
+//  forwardPID(bno, event, mpu);
+//  Serial.println(rawInput);
 
 //  filtrateDistances(ultraFront, ultraRight, ultraLeft);
 //  oneStep(ultraFront, ultraRight, ultraLeft, 35);
@@ -305,8 +317,6 @@ void loop(){
 //backPID(bno, event, mpu);
 
 //go();
-//digitalWrite(ledGreen, HIGH);
-//  digitalWrite(ledGreen, HIGH);
 
 //  filtrateDistances(ultraFront, ultraRight, ultraLeft, ultraBack);
 //  Serial.print(ultraLeft.distance);
@@ -320,8 +330,6 @@ void loop(){
 //  oneStepMillis(true);
 //  stop(true);
 //  delay(2000);
-
-//  firstChallenge();
 
 //  calibrarColores(0);
 //  while(1){
@@ -338,17 +346,4 @@ void loop(){
 //  ultra_RawKalman(ultraLeft, pingLeft);
 //  ultra_RawKalman(ultraRight, pingRight);
 //  ultra_RawKalman(ultraBack, pingBack);
-
-  //  0        1       2       3    
-//String color_names[num_col] = {"rojo", "azul", "verde", "negro"};
-
-//  calibrarColores(0);
-//  if(currentColor() == 0)
-//    Serial.println("Rojo");
-//  if(currentColor() == 1)
-//    Serial.println("Azul");
-//  if(currentColor() == 2)
-//    Serial.println("Verde");
-//  if(currentColor() == 3)
-//    Serial.println("Negro");
 }
