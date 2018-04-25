@@ -1,13 +1,23 @@
-void firstChallenge(){
+void halfTurn(){
+  analogWrite(motorR1, 100);
+  analogWrite(motorR2, 0);
+  analogWrite(motorL1, 0);
+  analogWrite(motorL2, 100); 
+  delay(800);
+}
+
+void firstControlChallenge() {
+  range = 30;
+  calibrarColores(1);
   delay(5000);
-  while(1){
-    while(currentColor() != 1){
-      forwardPID(bno, event, mpu);
+  while (1) {
+    while (currentColor() != 1) {
+      forwardPID();
     }
     stop(false);
-//    setNewFakeSetpoint();     
-    backPID(bno, event, mpu, 260);
-    spinPID(bno, event, mpu, -90, true);  
+    backPID(140);
+    stop(false);
+    spinPID(-90, true);
   }
 }
 

@@ -46,16 +46,11 @@ void calibrarColores(int challenge){
     LARC=true; //Will let the robot go back on spinPID()
     colorOptions.push(1);
   }
-  else if(challenge == 2){
-    LARC=true; //Will let the robot go back on spinPID()
-    colorOptions.push(2); colorOptions.push(1); colorOptions.push(0);
-  }
   while(!colorOptions.isEmpty()){
     int i = colorOptions.peek();
     Serial.println("La calibracion del color " + color_names[i] + " iniciara en 5 segundos.");        
     digitalWrite(ledRed, HIGH);
-    delay(5000);
-//    delay(2000);
+    delay(2000);
     digitalWrite(ledRed, LOW);
     Serial.println("La calibracion del color " + color_names[i] + " ha comenzado.");
     digitalWrite(ledGreen, HIGH);
@@ -78,11 +73,11 @@ void calibrarColores(int challenge){
 //int currentColor(double r, double g, double b){
 int currentColor(){
   readColor(r, g, b);
-  Serial.print(r);
-  Serial.print("\t");
-  Serial.print(g);
-  Serial.print("\t");
-  Serial.println(b);
+//  Serial.print(r);
+//  Serial.print("\t");
+//  Serial.print(g);
+//  Serial.print("\t");
+//  Serial.println(b);
   int posicion = -1;
   for(int i = 0; i < num_col; i++){    
     if(r <= color_position_arr[i].red + range && r >= color_position_arr[i].red - range){

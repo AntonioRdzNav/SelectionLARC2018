@@ -1,5 +1,5 @@
 double slowGo(double time){
-  return 65*(1-exp(-0.01*time/5));
+  return 100*(1-exp(-.2*time/5));
 }
 
 void stop(bool isSpin){   
@@ -8,11 +8,11 @@ void stop(bool isSpin){
   analogWrite(motorL1, 0);
   analogWrite(motorL2, 0);  
   if(isSpin){    
-    analogWrite(motorR1, 235);
-    analogWrite(motorR2, 0);
-    analogWrite(motorL1, 235);
-    analogWrite(motorL2, 0); 
-    delay(70);   
+//    analogWrite(motorR1, 235);
+//    analogWrite(motorR2, 0);
+//    analogWrite(motorL1, 235);
+//    analogWrite(motorL2, 0); 
+//    delay(70);   
   }                                                                  
   analogWrite(motorR1, 0);
   analogWrite(motorR2, 0);
@@ -23,7 +23,7 @@ void stop(bool isSpin){
 
 void go() {
   analogWrite(motorR1, 0);
-  analogWrite(motorR2, 0);
+  analogWrite(motorR2, 100);
   analogWrite(motorL1, 0);
   analogWrite(motorL2, 100); 
 }

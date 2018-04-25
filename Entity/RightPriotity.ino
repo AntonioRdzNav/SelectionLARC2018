@@ -1,13 +1,12 @@
 void oneStepMillis(bool comeFromBack){
   double time;
   int tempColor;
-//  int limitDer=0, limitIzq=0;  
   switchColor = false;
   (comeFromBack)? (time = timeStepBack): (time = timeStep);
-  filtrateDistances(ultraFront, ultraRight, ultraLeft, ultraBack);
+//  filtrateDistances(ultraFront, ultraRight, ultraLeft, ultraBack);
   double startTime = millis();
   double endTime = 0;
-  while ((endTime - startTime < time) && (ultraFront.distance > 8)){ 
+  while ((endTime - startTime < time)/* && (ultraFront.distance > 8)*/){ 
     updateColors(currentColor());
     if(!switchColor){
       tempColor = currentColor();
@@ -18,11 +17,12 @@ void oneStepMillis(bool comeFromBack){
       time+=2000;
       switchColor = false; 
     }
-    forwardPID(bno, event, mpu);
+    forwardPID();
     endTime = millis();    
-    filtrateDistances(ultraFront, ultraRight, ultraLeft, ultraBack);
+//    filtrateDistances(ultraFront, ultraRight, ultraLeft, ultraBack);
   } 
 }
+
 
 //void rightPriotity(UltraKalman &ultraFront, UltraKalman &ultraRight, UltraKalman &ultraLeft){ 
 //  filtrateDistances(ultraFront, ultraRight, ultraLeft, ultraBack);
