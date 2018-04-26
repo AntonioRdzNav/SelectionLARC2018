@@ -53,7 +53,7 @@ void backPID(int time) {
   double startTime = millis();
   double endTime = 0;
   readBNO();
-//  filtrateDistances(ultraFront, ultraRight, ultraLeft, ultraBack); 
+  filtrateDistancesSharp(); 
   while (endTime - startTime < time)/* && (!limit1 || !limit2))*/ {  
     leftPID.Compute();  //Gets an output
     rightPID.Compute();     
@@ -94,7 +94,7 @@ void backPID(int time) {
       analogWrite(motorL2, 0);        
     }
     readBNO();
-//    filtrateDistances(ultraFront, ultraRight, ultraLeft, ultraBack); 
+    filtrateDistancesSharp(); 
     endTime = millis();
   }  
   leftPID.SetTunings(rightConsKp, rightConsKi, rightConsKd);
@@ -144,7 +144,7 @@ void forwardPID() {
     analogWrite(motorL1, 0);
     analogWrite(motorL2, velGenIzq + leftOutput);          
   }
-//  filtrateDistances(ultraFront, ultraRight, ultraLeft, ultraBack);   
+  filtrateDistancesSharp();  
 //  ledsPID();
 }
 
@@ -168,7 +168,7 @@ void spinPID(int newAngle, bool isDeadEnd){
   calculateNewSetpoint(newAngle);
   leftPID.SetTunings(rightTurnKp, rightTurnKi, rightTurnKd);
   rightPID.SetTunings(leftTurnKp, leftTurnKi, leftTurnKd);
-//  filtrateDistances(ultraFront, ultraRight, ultraLeft, ultraBack); 
+  filtrateDistancesSharp(); 
 //  if(newAngle>0){
 //    if(ultraLeft.side)   
 //      canBack=true;
@@ -211,7 +211,7 @@ void turnPID(double time) {
   double tempOutput;
   int setpointReachedCounter=0;
   readBNO();
-//  filtrateDistances(ultraFront, ultraRight, ultraLeft, ultraBack); 
+  filtrateDistancesSharp(); 
   do{
     leftPID.Compute();  //Gets an output
     rightPID.Compute();
@@ -263,7 +263,7 @@ void turnPID(double time) {
     }
 //    ledsPID();    
     readBNO();
-//    filtrateDistances(ultraFront, ultraRight, ultraLeft, ultraBack);    
+    filtrateDistancesSharp();    
     endTime = millis();
   }while((endTime-startTime < time) && (setpointReachedCounter<15));
 }

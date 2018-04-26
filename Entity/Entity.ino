@@ -130,7 +130,7 @@ PID rightPID(&fakeInput, &rightOutput, &fakeSetpoint, rightGenKp, rightGenKi, ri
 bool LARC = true;
 
 ///////////////////////////////////////////PID Sharp///////////////////////////////////////////////////
-double sharpConsKp=16, sharpConsKi=0, sharpConsKd=0;
+double sharpConsKp=21, sharpConsKi=0, sharpConsKd=0;
 double SetpointWallDistance = 9, leftWallOutput, rightWallOutput, leftWheelOutput, rightWheelOutput;
 double leftWallError, rightWallError;
 
@@ -274,9 +274,9 @@ void loop(){
 //   }
 
 //  rightPriotity(ultraFront, ultraRight, ultraLeft); 
-  firstControlChallenge();
+//  firstControlChallenge();
 //  secondControlChallenge();
-//  thirdControlChallenge();
+  thirdControlChallenge();
 //  currentColor();
 
 //  forwardPID();

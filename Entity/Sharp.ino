@@ -10,6 +10,7 @@ double filterRawSharp(double rawSharpMeasure){
 //  -LongDistance Sharp = 9462 / (sensorvalue-16.92)
 void calculateRawDistancesSharp(){
   double volts;
+  delay(25); //Right time to make another read
   volts = analogRead(sharpRightPin);
   if(volts>=80 && volts<=530){
     sharpRight.rawDistance = (2076)/(volts-11);
