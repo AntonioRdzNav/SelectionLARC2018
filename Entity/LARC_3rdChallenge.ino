@@ -40,7 +40,7 @@ void wallDistancePID() {
   filtrateDistancesSharp();    
   wallDistancesCompute();
   regulateOutputsWallPID();
-  if(sharpFront.kalmanDistance < 11)
+  if((sharpFront.kalmanDistance < 11)/* || (sharpFront.kalmanDistance > 27 && sharpLeft.kalmanDistance > 25)*/)
     alignSharpFront(); 
   else if(rightWheelOutput > 15){
     analogWrite(motorR1, 0);
