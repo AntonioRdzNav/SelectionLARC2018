@@ -55,10 +55,10 @@ color color_position_arr[num_col];
 #define motorR1 9 //Back
 #define motorR2 6  //Front
 
-double velGenDer = 100;
-double velGenIzq = 100;
-double velGenDerWall = 70;
-double velGenIzqWall = 70;
+double velGenDer = 90;
+double velGenIzq = 90;
+double velGenDerWall = 50;
+double velGenIzqWall = 50;
 double velGenDerBack = 100;
 double velGenIzqBack = 100;
 //AT
@@ -113,12 +113,12 @@ sensors_event_t event;
 #include <utility/imumaths.h>
 #include <PID_v1.h>
 double leftAlignKp=37, leftAlignKi=0, leftAlignKd=0;
-double leftTurnKp=9, leftTurnKi=0, leftTurnKd=0;
+double leftTurnKp=10, leftTurnKi=0, leftTurnKd=0;
 double leftConsKp=47, leftConsKi=0, leftConsKd=0;
 double leftGenKp=leftConsKp, leftGenKi=leftConsKi, leftGenKd=leftConsKd;
 double leftError=0;
 double rightAlignKp=37, rightAlignKi=0, rightAlignKd=0;
-double rightTurnKp= 9, rightTurnKi=0, rightTurnKd=0;
+double rightTurnKp= 10, rightTurnKi=0, rightTurnKd=0;
 double rightConsKp=47, rightConsKi=0, rightConsKd=0;
 double rightGenKp=rightConsKp, rightGenKi=rightConsKi, rightGenKd=rightConsKd;
 double rightError=0;
@@ -130,8 +130,8 @@ PID rightPID(&fakeInput, &rightOutput, &fakeSetpoint, rightGenKp, rightGenKi, ri
 bool LARC = true;
 
 ///////////////////////////////////////////PID Sharp///////////////////////////////////////////////////
-double sharpConsKp=21, sharpConsKi=0, sharpConsKd=0;
-double SetpointWallDistance = 9, leftWallOutput, rightWallOutput, leftWheelOutput, rightWheelOutput;
+double sharpConsKp=8, sharpConsKi=0, sharpConsKd=0;
+double SetpointWallDistance = 8, leftWallOutput, rightWallOutput, leftWheelOutput, rightWheelOutput;
 double leftWallError, rightWallError;
 
 ///////////////////////////////////////////SHARP KALMAN FILTER///////////////////////////////////////////
