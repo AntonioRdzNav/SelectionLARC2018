@@ -8,7 +8,8 @@ void readInitialColors(bool willReadColors){
       switchColor = (tempColor!=-1) && ((tempColor==0) || (tempColor==1) || (tempColor==2)) && (tempColor!=lastColor);    
     }
     if(switchColor && currentColor()!=tempColor){
-      stopColor(tempColor);
+      if(willReadColors)
+        stopColor(tempColor);
       switchColor = false; 
       if(willReadColors && tempColor!=4){//Will stack the colors and the color is not white
         initialColors[nInitialColors] = tempColor;  
@@ -40,6 +41,23 @@ void goUntilBlack(int blackTimes){
   stop(false);  
 }
 
+void goUntilBox(bool isRightSharp){ 
+  filtrateDistancesSharp();
+  if(isRightSharp){
+    while(!sharpRight.side){ 
+      forwardPID();
+      filtrateDistancesSharp();
+    }   
+  }
+  else{
+    while(!sharpLeft.side){ 
+      forwardPID();
+      filtrateDistancesSharp();
+    } 
+  }
+  stop(false);  
+}
+
 void goUntilGreen(){
   int tempColor;
   bool greenDetected=false;
@@ -67,66 +85,93 @@ void goBox(double time){
 }
 
 void goRedBox(){
-  goBox(300);
+  filtrateDistancesSharp();
+  goBox(700); 
   spinPID(-90, true);
-  goUntilBlack(2);
-  spinPID(90, true);
-  goBox(1500);
+  goBox(1100);
+  goUntilBox(true);
+//  goBox(400);
+  stop(false);
   turnOnRedLED();
+  spinPID(-90, true); 
 }
 
 void goGreenBox(){
-  goBox(300);  
+  goBox(700);  
   spinPID(-90, true); 
-  goUntilBlack(1);
-  spinPID(90, true);
-  goBox(1500); 
-  turnOnGreenLED();  
+  stop(false);
+  turnOnGreenLED();
+  spinPID(-90, true);
 }
 
 void goBlueBox(){
-  goBox(300);  
+  filtrateDistancesSharp();
+  goBox(700); 
   spinPID(90, true);
-  goUntilBlack(2);
-  spinPID(-90, true);
-  goBox(1500);
+  goBox(1100);
+  goUntilBox(false);
+//  goBox(400);  
+  spinPID(90, true);
+  spinPID(90, true);
+  stop(false);
   turnOnBlueLED();
 }
 
 void returnBegin(char color){ 
   if(color == 'R'){
-    spinPID(-180, true);
-    goUntilGreen();  
+    filtrateDistancesSharp();
+//    goUntilGreen();  
     spinPID(-90, true);
-    goBox(1300);
+    goBox(1100);
+    goUntilBox(false);
+    backPID(300);
     spinPID(90, true);
-    goBox(5900);
+    goUntilBlack(1);
+    backPID(400);  
+    spinPID(180, true);
+//    goBox(400);
+//    goBox(4200);
   }
   else if(color == 'B'){
-    spinPID(180, true); 
-    goUntilGreen(); 
-    spinPID(90, true);
-    goBox(1300);
+    filtrateDistancesSharp();
+//    goUntilGreen(); 
+    goBox(1100);
+    goUntilBox(true);
+    backPID(300);  
     spinPID(-90, true);
-    goBox(5900);
+    goUntilBlack(1);
+    backPID(400);  
+    spinPID(-180, true);
+//    goBox(400);    
+//    goBox(4200);
   }
   else if(color == 'G'){
-    spinPID(-180, true); 
-    goUntilGreen();   
-    spinPID(-90, true);
-    goBox(900);
-    spinPID(90, true);
-    goBox(5900);
+//    spinPID(-90, true);
+//    goUntilGreen(); 
+//    spinPID(90, true);
+//    goBox(1300);
+//    spinPID(-90, true);
+    goUntilBlack(1);
+    backPID(400);  
+    spinPID(180, true);
+//    goBox(400);
+//    goBox(5000);
   }
-  spinPID(-180, true);
+//  spinPID(-180, true);
 }
 
 void secondControlChallenge(){
-  range = 20;
+  range = 23;
+  rightTurnKp= 11;
+  leftTurnKp=11;
   calibrarColores(0);
   readInitialColors(true);  
   for(int i=0; i<3; i++){
-    goUntilBlack(1);
+    goUntilGreen();
+    if(i>0){
+      goBox(950); 
+      goUntilGreen();
+    }
     if(initialColors[i] == 0){
       goRedBox();
       returnBegin('R');
@@ -139,6 +184,9 @@ void secondControlChallenge(){
       goGreenBox();
       returnBegin('G');
     }
+  }
+  while(1){
+    stop(false);
   }
 }
 

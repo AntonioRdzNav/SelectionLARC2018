@@ -197,6 +197,7 @@ void spinPID(int newAngle, bool isDeadEnd){
   turnPID(900);//900
   leftPID.SetTunings(rightConsKp, rightConsKi, rightConsKd);
   rightPID.SetTunings(leftConsKp, leftConsKi, leftConsKd);
+  stop(false);
 }
 
 bool isSetpointReached(){

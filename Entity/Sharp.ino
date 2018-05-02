@@ -18,7 +18,7 @@ void calculateRawDistancesSharp(){
   }
   volts = analogRead(sharpFrontPin);
   if(volts>=80 && volts<=530){  
-    sharpFront.rawDistance = (2076)/(volts-11);
+    sharpFront.rawDistance = (4800)/(volts-20);
     sharpFront.distance = filterRawSharp(sharpFront.rawDistance);
   }
   volts = analogRead(sharpLeftPin);

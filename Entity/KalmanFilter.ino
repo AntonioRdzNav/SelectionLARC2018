@@ -57,11 +57,11 @@ void filtrateDistancesSharp(){
   sharpKalmanFilter(sharpFront);
   sharpKalmanFilter(sharpRight);
   sharpKalmanFilter(sharpLeft);
-  if(sharpFront.kalmanDistance <= 25 && sharpFront.kalmanDistance!=0) sharpFront.side = true;
+  if(sharpFront.kalmanDistance <= 13 && sharpFront.kalmanDistance!=0) sharpFront.side = true;
   else sharpFront.side = false;
-  if(sharpRight.kalmanDistance <= 25 && sharpRight.kalmanDistance != 0) sharpRight.side = true;
+  if(sharpRight.kalmanDistance <= 13 && sharpRight.kalmanDistance != 0) sharpRight.side = true;
   else sharpRight.side = false;
-  if(sharpLeft.kalmanDistance <= 25 && sharpLeft.kalmanDistance != 0) sharpLeft.side = true;
+  if(sharpLeft.kalmanDistance <= 13 && sharpLeft.kalmanDistance != 0) sharpLeft.side = true;
   else sharpLeft.side = false;    
 }
 

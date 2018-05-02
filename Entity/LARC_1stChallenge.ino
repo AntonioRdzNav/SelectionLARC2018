@@ -1,5 +1,7 @@
 void firstControlChallenge() {
-  range = 45;
+  range = 42;
+  rightTurnKp= 11;
+  leftTurnKp=11;
   calibrarColores(1);
   delay(5000);
   while (1) {
@@ -7,7 +9,7 @@ void firstControlChallenge() {
       forwardPID();
     }
     stop(false);
-    backPID(160);
+    backPID(225);
     stop(false);
     spinPID(-90, true);
   }

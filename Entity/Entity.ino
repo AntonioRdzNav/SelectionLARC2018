@@ -69,6 +69,7 @@ double maxTurnVel=150;
 double maxFrontVel=255;
 double maxWallVel=255;
 bool spinRight, spinLeft;
+bool isLeft = false;
 
 ///////////////////////////////////////////ULTRASONICS////////////////////////////////////////////
 //#include <NewPing.h>
@@ -130,7 +131,7 @@ PID rightPID(&fakeInput, &rightOutput, &fakeSetpoint, rightGenKp, rightGenKi, ri
 bool LARC = true;
 
 ///////////////////////////////////////////PID Sharp///////////////////////////////////////////////////
-double sharpConsKp=8, sharpConsKi=0, sharpConsKd=0;
+double sharpConsKp=30, sharpConsKi=0, sharpConsKd=0;
 double SetpointWallDistance = 8, leftWallOutput, rightWallOutput, leftWheelOutput, rightWheelOutput;
 double leftWallError, rightWallError;
 
@@ -274,9 +275,9 @@ void loop(){
 //   }
 
 //  rightPriotity(ultraFront, ultraRight, ultraLeft); 
-//  firstControlChallenge();
+  firstControlChallenge();
 //  secondControlChallenge();
-  thirdControlChallenge();
+//  thirdControlChallenge();
 //  currentColor();
 
 //  forwardPID();

@@ -118,7 +118,7 @@ void  showSelectedLed(int color){
 
 void stopColor(int color){
   long int temp = millis();  
-  while(millis() < temp + 2000){
+  while(millis() < temp + 900){
     stop(false);
     showSelectedLed(color);
   }   

@@ -5,31 +5,57 @@ void regulateOutputsWallPID(){
     rightWheelOutput=maxWallVel-velGenDerWall;
 }
 
-void wallDistancesCompute(){
-  if(sharpLeft.kalmanDistance < SetpointWallDistance-1.2){
-    leftWallError = SetpointWallDistance - sharpLeft.kalmanDistance;
-    leftWheelOutput = sharpConsKp*leftWallError;
-    rightWheelOutput = 0;
-  }
-  else if(sharpLeft.kalmanDistance > SetpointWallDistance+1.2){
-    leftWallError = sharpLeft.kalmanDistance - SetpointWallDistance;
-    rightWheelOutput = sharpConsKp*leftWallError;
-    leftWheelOutput = 0;    
+void wallDistancesCompute(bool leftWall){
+  if(leftWall){
+    if(sharpLeft.kalmanDistance < SetpointWallDistance-1.2){
+      leftWallError = SetpointWallDistance - sharpLeft.kalmanDistance;
+      leftWheelOutput = sharpConsKp*leftWallError;
+      rightWheelOutput = 0;
+    }
+    else if(sharpLeft.kalmanDistance > SetpointWallDistance+1.2){
+      leftWallError = sharpLeft.kalmanDistance - SetpointWallDistance;
+      rightWheelOutput = sharpConsKp*leftWallError;
+      leftWheelOutput = 0;    
+    }
+    else{
+      leftWheelOutput = 0;
+      rightWheelOutput = 0;
+    }
   }
   else{
-    leftWheelOutput = 0;
-    rightWheelOutput = 0;
+    if(sharpRight.kalmanDistance < SetpointWallDistance-1.2){
+      rightWallError = SetpointWallDistance - sharpRight.kalmanDistance;
+      rightWheelOutput = sharpConsKp*rightWallError;
+      leftWheelOutput = 0;
+    }
+    else if(sharpRight.kalmanDistance > SetpointWallDistance+1.2){
+      rightWallError = sharpRight.kalmanDistance - SetpointWallDistance;
+      leftWheelOutput = sharpConsKp*rightWallError;
+      rightWheelOutput = 0;    
+    }
+    else{
+      leftWheelOutput = 0;
+      rightWheelOutput = 0;
+    }
   }
 }
 
-void alignSharpFront(bool frontWall){
+void alignSharpFront(bool frontWall, bool leftWall){
   stop(false);  
   if(frontWall){
-    while(sharpFront.kalmanDistance < 7){
-      analogWrite(motorR1, 140);
-      analogWrite(motorR2, 0);
-      analogWrite(motorL1, 0);
-      analogWrite(motorL2, 140);
+    while(sharpFront.kalmanDistance < 16){
+      if(leftWall){
+        analogWrite(motorR1, 140);
+        analogWrite(motorR2, 0);
+        analogWrite(motorL1, 0);
+        analogWrite(motorL2, 140);
+      }
+      else{
+        analogWrite(motorR1, 0);
+        analogWrite(motorR2, 140);
+        analogWrite(motorL1, 140);
+        analogWrite(motorL2, 0);
+      }
       filtrateDistancesSharp();  
     }
   }
@@ -55,13 +81,13 @@ void wallDistancePID() {
 //  Serial.print(sharpFront.distance);
 //  Serial.print("\t");
 //  Serial.println(sharpRight.distance);   
-  wallDistancesCompute();
+  wallDistancesCompute(isLeft);
   regulateOutputsWallPID();
   Serial.print(leftWheelOutput);
   Serial.print("\t");
   Serial.println(rightWheelOutput);    
-  if(sharpFront.kalmanDistance < 7)
-    alignSharpFront(true); 
+  if(sharpFront.kalmanDistance < 16)
+    alignSharpFront(true, isLeft); 
   else if(rightWheelOutput > 0){
     analogWrite(motorL2, velGenDerWall);     
     analogWrite(motorR1, 0);
@@ -81,8 +107,8 @@ void wallDistancePID() {
 }
 
 void thirdControlChallenge(){
-  velGenDer = 70;
-  velGenIzq = 70;  
+  velGenDer = 78;
+  velGenIzq = 78;  
   leftConsKp=6, leftConsKi=0, leftConsKd=0;
   rightConsKp=6, rightConsKi=0, rightConsKd=0;  
   wallDistancePID();
